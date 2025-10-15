@@ -1,0 +1,76 @@
+Análisis de Requerimientos Funcionales
+1. Requerimientos de Clientes
+RF01: El sistema debe permitir el registro de un nuevo cliente con nombre, RFC, teléfono y dirección.
+CUMPLIDO
+
+RF02: El sistema debe mostrar una lista paginada de todos los clientes registrados.
+CUMPLIDO
+
+RF03: El sistema debe permitir la modificación de los datos de un cliente existente, excepto su cédula (por ser clave).
+CUMPLIDO
+
+--------------
+EMMA:
+RF04: El sistema debe permitir la eliminación de un cliente, solo si no tiene préstamos activos.
+NO CUMPLIDO: Existe la funcionalidad para eliminar un cliente. Sin embargo, la validación para verificar si tiene préstamos activos no está implementada. La función validarEliminarCliente en ClienteService.js siempre devuelve true, permitiendo el borrado en cualquier caso.
+------------------------------------
+
+RF05: El sistema debe permitir la búsqueda de clientes por nombre o cédula.
+CUMPLIDO: La tabla de clientes tiene una barra de búsqueda que filtra los resultados por nombre y RFC en tiempo real. La lógica está en FormCliente.js.
+
+
+2. Requerimientos de Cálculo y Simulación
+
+RF06: El sistema debe calcular la cuota mensual fija de un préstamo dada la tasa de interés anual, el monto y el plazo en meses.
+CUMPLIDO: Al llenar el formulario de préstamo y presionar el botón, el sistema primero calcula y muestra la cuota mensual estimada. Luego, pide confirmación al usuario antes de crear el préstamo, lo que funciona como una simulación.
+
+RF07: El sistema debe generar la tabla de amortización completa una vez que se calculan los datos del préstamo.
+CUMPLIDO: La función generarTablaAmortizacion en PrestamoService.js calcula el plan de pagos completo cuando se selecciona un préstamo en la pestaña "Amortización".
+
+RF08: La tabla de amortización debe detallar: Saldo Inicial, Intereses, Amortización de Capital, Cuota Total y Saldo Final para cada período.
+CUMPLIDO: La tabla de amortización generada muestra correctamente: Saldo Inicial, Intereses, Amortización de Capital (columna "Capital"), Saldo Final y la cuota (columna "Cuota Total").
+
+
+3. Requerimientos de Gestión de Préstamos
+
+RF09: El sistema debe permitir el registro de un nuevo préstamo, asociándolo a un cliente existente y almacenando el plan de amortización generado.
+CUMPLIDO: El formulario de préstamos permite registrar un nuevo préstamo asociándolo a un cliente existente.
+
+RF10: El sistema debe dar la posibilidad de seleccionar entre 10%, 12% y 14% de tasa de interés anual.
+CUMPLIDO
+
+RF11: El sistema debe dar la posibilidad de seleccionar entre 6, 12, 18 y 24 meses para el plazo a pagar.
+CUMPLIDO
+
+RF12: El sistema debe consultar y mostrar todos los préstamos asociados a un cliente específico.
+CUMPLIDO
+
+---------------
+ROBERTA:
+RF13: El sistema debe mostrar el estado de cada préstamo (Activo, Pagado, Vencido).
+REVISAR
+
+RF14: El sistema debe permitir la consulta del detalle y la tabla de amortización de cualquier préstamo activo.
+CUMPLIDO: La pestaña "Amortización" funciona como la vista de detalle, mostrando la información del préstamo y su plan de pagos completo.
+
+----PENDIENTE-------
+RF15: El sistema debe registrar un pago de cuota, marcando el período correspondiente en la tabla de amortización con la fecha de pago real.
+CUMPLIDO: Se pueden registrar pagos periódicos a través del botón "Pagar" en la tabla de amortización.
+
+RF16: El sistema debe actualizar el estado del préstamo a "Pagado" cuando el saldo final sea cero después de registrar el último pago.
+CUMPLIDO
+
+4. Requerimientos de Reportes
+--------------
+DAVID:
+
+RF17: El sistema debe generar un reporte de préstamos vencidos, basándose en la fecha programada de pago sin registro de pago real.
+IMPLEMENTADO
+
+RF18: El sistema debe alertar al gestor si un cliente intenta solicitar un nuevo préstamo teniendo uno o más préstamos en estado "Vencido".
+IMPLEMENTADO
+
+RF19: El sistema debe mostrar un resumen financiero de todos los préstamos (Monto Total Prestado, Intereses Totales a Recibir).
+IMPLEMENTADO: No hay una función que genere un informe con el Monto Total Prestado y los Intereses Totales a Recibir.
+-----------
+
