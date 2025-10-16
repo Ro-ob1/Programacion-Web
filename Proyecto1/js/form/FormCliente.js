@@ -177,6 +177,20 @@ class FormCliente {
 
                 this.showLoading(false);
                 this.modalEditCliente.style.display = "block";
+
+                // Botones para cambiar foto/firma desde el modal Editar
+                const btnEditarCambiarFoto = document.getElementById('editarCambiarFoto');
+                const btnEditarCambiarFirma = document.getElementById('editarCambiarFirma');
+                if (btnEditarCambiarFoto) {
+                    btnEditarCambiarFoto.onclick = () => {
+                        this.mostrarModalCambiarFoto(id);
+                    };
+                }
+                if (btnEditarCambiarFirma) {
+                    btnEditarCambiarFirma.onclick = () => {
+                        this.mostrarModalCambiarFirma(id);
+                    };
+                }
             } catch (error) {
                 this.showLoading(false);
                 this.toast.error(
@@ -201,7 +215,6 @@ class FormCliente {
         formEditarCliente.addEventListener("submit", async (e) => {
             e.preventDefault();
             const id = document.getElementById("editarClienteId").value;
-            const imagenFile = document.getElementById("editarImagenCliente").files[0];
 
             try {
                 this.showLoading(true);
@@ -210,7 +223,7 @@ class FormCliente {
                     telefono: document.getElementById('editarTelefono').value,
                     direccion: document.getElementById('editarDireccion').value,
                     genero: document.getElementById('editarGenero').value
-                }, imagenFile);
+                });
                 this.toast.success("Cliente actualizado exitosamente");
                 modalEditarCliente.style.display = "none";
 
@@ -483,59 +496,14 @@ class FormCliente {
     installEventGenerarCredencial() {
         // Exponer la función globalmente para que pueda ser llamada desde onclick
         window.generarCredencial = (clienteId) => {
-            this.mostrarOpcionesCredencial(clienteId);
+            // Mostrar directamente el PDF sin pasar por opciones
+            this.generarCredencialEstiloINE(clienteId);
         };
 
-        // Event listeners para los modales
-        this.setupModalEventListeners();
+        // Ya no hay modal de opciones; limpiamos listeners relacionados
     }
 
-    setupModalEventListeners() {
-        // Modal de opciones
-        const btnVerCredencial = document.getElementById('btnVerCredencial');
-        const btnCambiarFoto = document.getElementById('btnCambiarFoto');
-        
-        if (btnVerCredencial) {
-            btnVerCredencial.addEventListener('click', () => {
-                const clienteId = this.clienteIdActual;
-                this.cerrarModalOpciones();
-                this.generarCredencialEstiloINE(clienteId);
-            });
-        }
-
-        if (btnCambiarFoto) {
-            btnCambiarFoto.addEventListener('click', () => {
-                const clienteId = this.clienteIdActual;
-                this.cerrarModalOpciones();
-                this.mostrarModalCambiarFoto(clienteId);
-            });
-        }
-
-        const btnCambiarFirma = document.getElementById('btnCambiarFirma');
-        if (btnCambiarFirma) {
-            btnCambiarFirma.addEventListener('click', () => {
-                const clienteId = this.clienteIdActual;
-                this.cerrarModalOpciones();
-                this.mostrarModalCambiarFirma(clienteId);
-            });
-        }
-
-        // Este form ya no se usa, ahora usamos los nuevos controles de cámara
-
-        // Funciones globales para cerrar modales
-        window.cerrarModalOpciones = () => this.cerrarModalOpciones();
-        window.cerrarModalCambiarFoto = () => this.cerrarModalCambiarFoto();
-        window.cerrarModalCambiarFirma = () => this.cerrarModalCambiarFirma();
-    }
-
-    mostrarOpcionesCredencial(clienteId) {
-        this.clienteIdActual = clienteId;
-        document.getElementById('modalOpcionesCredencial').style.display = 'block';
-    }
-
-    cerrarModalOpciones() {
-        document.getElementById('modalOpcionesCredencial').style.display = 'none';
-    }
+    // Eliminados: setupModalEventListeners, mostrarOpcionesCredencial, cerrarModalOpciones
 
     async mostrarModalCambiarFoto(clienteId) {
         try {
@@ -570,18 +538,19 @@ class FormCliente {
 
     resetearModalCambiarFoto() {
         // Ocultar todas las áreas
-        document.getElementById('areaCameraNueva').style.display = 'none';
-        document.getElementById('areaArchivoNueva').style.display = 'none';
-        document.getElementById('previewNuevaFoto').style.display = 'none';
+        const areaCam = document.getElementById('areaCameraNueva');
+        if (areaCam) areaCam.style.display = 'none';
+        const areaArchivoNueva = document.getElementById('areaArchivoNueva');
+        if (areaArchivoNueva) areaArchivoNueva.style.display = 'none';
+        const prev = document.getElementById('previewNuevaFoto');
+        if (prev) prev.style.display = 'none';
         
         // Detener cámara si está activa
         this.detenerCameraCambiarFoto();
         
         // Limpiar input de archivo
         const inputArchivo = document.getElementById('nuevaFotoCliente');
-        if (inputArchivo) {
-            inputArchivo.value = '';
-        }
+        if (inputArchivo) inputArchivo.value = '';
         
         // Limpiar preview
         const imgPreview = document.getElementById('imgPreviewNueva');
@@ -595,7 +564,6 @@ class FormCliente {
 
     configurarEventosCambiarFoto() {
         const btnTomarNuevaFoto = document.getElementById('btnTomarNuevaFoto');
-        const btnSubirNuevaFoto = document.getElementById('btnSubirNuevaFoto');
         const btnCapturarNueva = document.getElementById('btnCapturarNueva');
         const btnCancelarCameraNueva = document.getElementById('btnCancelarCameraNueva');
         const btnConfirmarCambio = document.getElementById('btnConfirmarCambio');
@@ -603,27 +571,19 @@ class FormCliente {
         const nuevaFotoCliente = document.getElementById('nuevaFotoCliente');
 
         // Remover event listeners anteriores para evitar duplicados
-        const newBtnTomarNuevaFoto = btnTomarNuevaFoto.cloneNode(true);
-        btnTomarNuevaFoto.parentNode.replaceChild(newBtnTomarNuevaFoto, btnTomarNuevaFoto);
-        
-        const newBtnSubirNuevaFoto = btnSubirNuevaFoto.cloneNode(true);
-        btnSubirNuevaFoto.parentNode.replaceChild(newBtnSubirNuevaFoto, btnSubirNuevaFoto);
+    const newBtnTomarNuevaFoto = btnTomarNuevaFoto.cloneNode(true);
+    btnTomarNuevaFoto.parentNode.replaceChild(newBtnTomarNuevaFoto, btnTomarNuevaFoto);
 
         // Event listeners
         document.getElementById('btnTomarNuevaFoto').addEventListener('click', () => {
             this.iniciarCameraCambiarFoto();
         });
         
-        document.getElementById('btnSubirNuevaFoto').addEventListener('click', () => {
-            document.getElementById('areaArchivoNueva').style.display = 'block';
-            document.getElementById('areaCameraNueva').style.display = 'none';
-        });
-        
         btnCapturarNueva?.addEventListener('click', () => this.capturarNuevaFoto());
         btnCancelarCameraNueva?.addEventListener('click', () => this.cancelarCameraCambiarFoto());
         btnConfirmarCambio?.addEventListener('click', () => this.confirmarCambioFoto());
         btnCancelarCambio?.addEventListener('click', () => this.resetearModalCambiarFoto());
-        nuevaFotoCliente?.addEventListener('change', () => this.subirNuevaFotoArchivo());
+        // Eliminado: cambio de archivo desde input
     }
 
     async iniciarCameraCambiarFoto() {
@@ -657,7 +617,8 @@ class FormCliente {
             }
             
             document.getElementById('areaCameraNueva').style.display = 'block';
-            document.getElementById('areaArchivoNueva').style.display = 'none';
+            const areaArchivoNueva = document.getElementById('areaArchivoNueva');
+            if (areaArchivoNueva) areaArchivoNueva.style.display = 'none';
             
         } catch (error) {
             console.error('Error al acceder a la cámara:', error);
@@ -700,21 +661,7 @@ class FormCliente {
         }
     }
 
-    subirNuevaFotoArchivo() {
-        const input = document.getElementById('nuevaFotoCliente');
-        const file = input.files[0];
-        
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                this.nuevaFotoCapturada = e.target.result;
-                document.getElementById('imgPreviewNueva').src = this.nuevaFotoCapturada;
-                document.getElementById('previewNuevaFoto').style.display = 'block';
-                document.getElementById('areaArchivoNueva').style.display = 'none';
-            };
-            reader.readAsDataURL(file);
-        }
-    }
+    // Eliminado: subir nueva foto desde archivo
 
     async confirmarCambioFoto() {
         try {
@@ -1126,57 +1073,94 @@ class FormCliente {
             doc.setLineWidth(0.3);
             doc.rect(firmaX, firmaY, firmaW, firmaH);
 
+            // Utilidad para truncar texto al ancho disponible
+            const fitText = (doc, text, maxWidth) => {
+                if (!text) return '';
+                let t = String(text);
+                while (doc.getTextWidth(t) > maxWidth && t.length > 0) {
+                    t = t.slice(0, -1);
+                }
+                return t.length < String(text).length ? t.slice(0, -1) + '…' : t;
+            };
+
             // Datos del cliente estilo INE
             const datosX = 26;
             doc.setTextColor(0, 0, 0);
-            doc.setFontSize(5);
+            doc.setFontSize(4.3); // tamaño base para etiquetas
             doc.setFont(undefined, 'bold');
 
             // NOMBRE
             doc.text('NOMBRE:', datosX, 19);
             doc.setFont(undefined, 'normal');
-            doc.setFontSize(6);
-            doc.text(cliente.nombre.toUpperCase(), datosX, 22);
+            doc.setFontSize(5.3);
+            const maxNombreWidth = 85.6 - datosX - 6; // margen derecho
+            doc.text(fitText(doc, (cliente.nombre || '').toUpperCase(), maxNombreWidth), datosX, 22);
 
             // DOMICILIO
-            doc.setFontSize(5);
+            doc.setFontSize(4.3);
             doc.setFont(undefined, 'bold');
             doc.text('DOMICILIO:', datosX, 26);
             doc.setFont(undefined, 'normal');
-            doc.setFontSize(5);
-            const direccionCorta = cliente.direccion.length > 30 ? 
-                cliente.direccion.substring(0, 30) + '...' : cliente.direccion;
-            doc.text(direccionCorta.toUpperCase(), datosX, 29);
+            doc.setFontSize(4.8);
+            const maxDomWidth = 85.6 - datosX - 6;
+            doc.text(fitText(doc, (cliente.direccion || '').toUpperCase(), maxDomWidth), datosX, 29);
 
             // RFC
             doc.setFont(undefined, 'bold');
             doc.text('RFC:', datosX, 33);
             doc.setFont(undefined, 'normal');
-            doc.text(cliente.rfc.toUpperCase(), datosX, 36);
+            doc.setFontSize(4.8);
+            const maxRfcWidth = 85.6 - datosX - 6;
+            doc.text(fitText(doc, (cliente.rfc || '').toUpperCase(), maxRfcWidth), datosX, 36);
 
             // FOLIO (ID Cliente)
             doc.setFont(undefined, 'bold');
             doc.text('FOLIO:', datosX, 40);
             doc.setFont(undefined, 'normal');
-            doc.text(cliente.id.toUpperCase(), datosX, 43);
+            doc.setFontSize(4.8);
+            const maxFolioWidth = 85.6 - datosX - 6;
+            doc.text(fitText(doc, (cliente.id || '').toUpperCase(), maxFolioWidth), datosX, 43);
 
             // Parte inferior derecha - datos adicionales
             const infoX = 55;
-            doc.setFontSize(4);
+            doc.setFontSize(4.1);
             doc.setFont(undefined, 'bold');
             doc.text('TELÉFONO:', infoX, 19);
             doc.setFont(undefined, 'normal');
-            doc.text(cliente.telefono, infoX, 22);
+            doc.setFontSize(4.8);
+            const maxTelWidth = 85.6 - infoX - 6;
+            doc.text(fitText(doc, cliente.telefono || '', maxTelWidth), infoX, 22);
 
             doc.setFont(undefined, 'bold');
             doc.text('GÉNERO:', infoX, 26);
             doc.setFont(undefined, 'normal');
-            doc.text(cliente.genero || 'NO ESPECIFICADO', infoX, 29);
+            doc.setFontSize(4.8);
+            const maxGenWidth = 85.6 - infoX - 6;
+            doc.text(fitText(doc, (cliente.genero || 'NO ESPECIFICADO'), maxGenWidth), infoX, 29);
 
             doc.setFont(undefined, 'bold');
             doc.text('REGISTRO:', infoX, 33);
             doc.setFont(undefined, 'normal');
-            doc.text(cliente.fechaRegistro.toLocaleDateString('es-MX'), infoX, 36);
+            doc.setFontSize(4.8);
+            let fechaStr;
+            try {
+                const fr = cliente.fechaRegistro;
+                if (!fr) {
+                    fechaStr = new Date().toLocaleDateString('es-MX');
+                } else if (fr.seconds) {
+                    fechaStr = new Date(fr.seconds * 1000).toLocaleDateString('es-MX');
+                } else if (fr instanceof Date) {
+                    fechaStr = fr.toLocaleDateString('es-MX');
+                } else if (typeof fr === 'string' || typeof fr === 'number') {
+                    const d = new Date(fr);
+                    fechaStr = isNaN(d) ? new Date().toLocaleDateString('es-MX') : d.toLocaleDateString('es-MX');
+                } else {
+                    fechaStr = new Date().toLocaleDateString('es-MX');
+                }
+            } catch {
+                fechaStr = new Date().toLocaleDateString('es-MX');
+            }
+            doc.text(fechaStr, infoX, 36);
 
             // Código de barras simulado
             doc.setDrawColor(0, 0, 0);
@@ -1185,6 +1169,43 @@ class FormCliente {
                 const x = 30 + (i * 1.5);
                 const altura = Math.random() > 0.5 ? 3 : 2;
                 doc.line(x, 47, x, 47 + altura);
+            }
+
+            // Generar QR con datos de credencial (solo texto)
+            try {
+                const qrData = [
+                    `NOMBRE: ${(cliente.nombre || '').toUpperCase()}`,
+                    `DOMICILIO: ${(cliente.direccion || '').toUpperCase()}`,
+                    `RFC: ${(cliente.rfc || '').toUpperCase()}`,
+                    `TEL: ${cliente.telefono || ''}`,
+                    `GENERO: ${cliente.genero || ''}`,
+                    `REGISTRO: ${fechaStr}`,
+                    `FOLIO: ${(cliente.id || '').toUpperCase()}`
+                ].join('\n');
+
+                if (window.QRious) {
+                    const qrCanvas = document.createElement('canvas');
+                    new window.QRious({
+                        element: qrCanvas,
+                        value: qrData,
+                        size: 160,
+                        level: 'M'
+                    });
+                    const qrImg = qrCanvas.toDataURL('image/png');
+                    // Posicionar QR en esquina inferior derecha (más grande y arriba del footer)
+                    const qrWmm = 14, qrHmm = 14; // mm
+                    const qrX = 85.6 - qrWmm - 2;
+                    const qrY = 53.98 - qrHmm - 7;
+                    doc.addImage(qrImg, 'PNG', qrX, qrY, qrWmm, qrHmm);
+                    // Marco sutil para destacarlo
+                    doc.setDrawColor(120, 120, 120);
+                    doc.setLineWidth(0.2);
+                    doc.rect(qrX, qrY, qrWmm, qrHmm);
+                } else {
+                    console.warn('QRious no está disponible, se omite QR');
+                }
+            } catch (e) {
+                console.warn('No se pudo generar QR:', e);
             }
 
             // Texto de validez
@@ -1198,9 +1219,14 @@ class FormCliente {
             doc.setLineWidth(0.8);
             doc.rect(1, 1, 83.6, 51.98);
 
-            // Mostrar PDF en iframe
+
+            // Mostrar PDF en iframe y ocultar credencial HTML
             const pdfOutput = doc.output('blob');
             const pdfUrl = URL.createObjectURL(pdfOutput);
+
+            // Ocultar la credencial HTML si está visible
+            const credencialContent = document.getElementById('credencialContent');
+            if (credencialContent) credencialContent.style.display = 'none';
 
             const modalPdf = document.getElementById('modalPdf');
             const pdfViewer = document.getElementById('pdfViewer');
@@ -1208,10 +1234,22 @@ class FormCliente {
             pdfViewer.src = pdfUrl;
             modalPdf.style.display = 'block';
 
+            // Configurar botón Exportar a PDF para solo reabrir el modal
+            const btnExportarPDF = document.getElementById('btnExportarPDF');
+            if (btnExportarPDF) {
+                btnExportarPDF.onclick = () => {
+                    pdfViewer.src = pdfUrl;
+                    modalPdf.style.display = 'block';
+                    if (credencialContent) credencialContent.style.display = 'none';
+                };
+            }
+
             const closeButton = modalPdf.querySelector(".close-button");
-            closeButton.addEventListener("click", () => {
-                modalPdf.style.display = "none";
-            });
+            if (closeButton) {
+                closeButton.onclick = () => {
+                    modalPdf.style.display = "none";
+                };
+            }
 
             window.addEventListener("click", (event) => {
                 if (event.target === modalPdf) {
@@ -1344,7 +1382,6 @@ class FormCliente {
 
     setupModalCapturarFoto() {
         const btnTomarFoto = document.getElementById('btnTomarFoto');
-        const btnSubirArchivo = document.getElementById('btnSubirArchivo');
         const btnSinFoto = document.getElementById('btnSinFoto');
         const btnCapturar = document.getElementById('btnCapturar');
         const btnCancelarCamera = document.getElementById('btnCancelarCamera');
@@ -1354,7 +1391,6 @@ class FormCliente {
         const btnSinFirma = document.getElementById('btnSinFirma');
         const btnFinalizarRegistro = document.getElementById('btnFinalizarRegistro');
         const btnVolverFoto = document.getElementById('btnVolverFoto');
-        const archivoFoto = document.getElementById('archivoFoto');
         const btnExportarPDF = document.getElementById('btnExportarPDF');
 
         // Funciones globales para cerrar modal
@@ -1383,25 +1419,17 @@ class FormCliente {
         btnSinFirma?.addEventListener('click', () => this.finalizarSinFirma());
         btnFinalizarRegistro?.addEventListener('click', () => this.finalizarRegistroCompleto());
         btnVolverFoto?.addEventListener('click', () => this.volverAFoto());
-        archivoFoto?.addEventListener('change', () => window.subirFotoArchivo());
         btnExportarPDF?.addEventListener('click', () => window.exportarCredencialPDF());
     }
 
     resetearModalCaptura() {
         // Ocultar todas las áreas
         document.getElementById('areaCamera').style.display = 'none';
-        document.getElementById('areaArchivo').style.display = 'none';
         document.getElementById('previewFoto').style.display = 'none';
         document.getElementById('infoDroidCam').style.display = 'none';
         
         // Detener cámara si está activa
         this.detenerCamara();
-        
-        // Limpiar input de archivo
-        const inputArchivo = document.getElementById('archivoFoto');
-        if (inputArchivo) {
-            inputArchivo.value = '';
-        }
         
         // Limpiar preview
         const imgPreview = document.getElementById('imgPreview');
@@ -1729,294 +1757,259 @@ class FormCliente {
     // === MÉTODOS PARA MOSTRAR CREDENCIAL HTML ===
 
     mostrarCredencialHTML(cliente) {
-        console.log('Mostrando credencial HTML para cliente:', cliente.nombre);
-        
-        // Calcular datos adicionales
-        const fechaNacimiento = cliente.getFechaNacimiento();
-        const edad = cliente.getEdad();
-        
-        // Crear credencial paso a paso
-        const credencial = this.construirCredencial(cliente, fechaNacimiento, edad);
-        
-        // Mostrar en modal
-        const contenedor = document.getElementById('credencialContent');
-        contenedor.innerHTML = '';
-        contenedor.appendChild(credencial);
-        document.getElementById('modalCredencial').style.display = 'block';
+        // Modal de credencial HTML eliminado; abrir PDF directamente
+        console.log('Abriendo PDF de credencial para cliente:', cliente.nombre);
+        this.generarCredencialEstiloINE(cliente.id);
     }
 
-    construirCredencial(cliente, fechaNacimiento, edad) {
-        // 1. Contenedor principal
-        const credencial = this.crearContenedorPrincipal();
-        
-        // 2. Header con título
-        credencial.appendChild(this.crearHeader());
-        
-        // 3. Logo/escudo
-        credencial.appendChild(this.crearLogo());
-        
-        // 4. Título de credencial
-        credencial.appendChild(this.crearTitulo());
-        
-        // 5. Contenido principal (foto + datos)
-        credencial.appendChild(this.crearContenidoPrincipal(cliente, fechaNacimiento, edad));
-        
-        // 6. Código de barras
-        credencial.appendChild(this.crearCodigoBarras());
-        
-        // 7. Footer con firma
-        credencial.appendChild(this.crearFooter(cliente));
-        
-        return credencial;
+    async mostrarCredencialPDF(clienteId) {
+        await this.generarCredencialEstiloINE(clienteId);
     }
 
-    crearContenedorPrincipal() {
-        const div = document.createElement('div');
-        div.style.cssText = `
-            width: 400px; /* Aumentado para más espacio */
-            height: 250px; /* Aumentado para más espacio */
+    // Renderiza la credencial en HTML con los mismos campos y formato que el PDF
+    crearCredencialPDFLike(cliente) {
+        const card = document.createElement('div');
+        card.style.cssText = `
+            width: 450px; 
+            height: 260px; 
             background: linear-gradient(135deg, #e8f5e8 0%, #dcf0dc 100%);
-            border: 3px solid #228B22;
-            border-radius: 15px;
-            padding: 20px; /* Aumentado */
-            font-family: 'Arial', sans-serif;
-            position: relative;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.25);
-            margin: 20px auto;
-            display: flex;
-            flex-direction: column;
+            border: 4px solid #228B22; 
+            border-radius: 12px; 
+            box-shadow: 0 4px 16px rgba(0,0,0,0.12); 
+            position: relative; 
+            font-family: Arial, sans-serif; 
+            margin: 0 auto;
+            overflow: hidden;
         `;
-        return div;
-    }
 
-    crearHeader() {
-        const header = document.createElement('div');
-        header.style.cssText = `
-            background: #228B22;
-            color: white;
-            text-align: center;
-            padding: 10px; /* Aumentado */
-            margin: -20px -20px 20px -20px; /* Ajustado */
-            border-radius: 12px 12px 0 0;
-            font-size: 12px; /* Aumentado */
-            font-weight: bold;
+        // Franja superior
+        const franja = document.createElement('div');
+        franja.style.cssText = `
+            background: #228B22; 
+            color: #fff; 
+            text-align: center; 
+            font-weight: bold; 
+            font-size: 10px; 
+            padding: 8px 0;
+            letter-spacing: 0.5px;
         `;
-        header.textContent = 'CRÉDITO FÁCIL - ESTADOS UNIDOS MEXICANOS';
-        return header;
-    }
+        franja.textContent = 'CRÉDITO FÁCIL - ESTADOS UNIDOS MEXICANOS';
+        card.appendChild(franja);
 
-    crearLogo() {
-        const logo = document.createElement('div');
-        logo.style.cssText = `
-            position: absolute;
-            top: 40px; /* Ajustado */
-            left: 25px; /* Ajustado */
-            width: 22px; /* Aumentado */
-            height: 22px; /* Aumentado */
-            background: #228B22;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: bold;
-            font-size: 14px; /* Aumentado */
-        `;
-        logo.textContent = 'C';
-        return logo;
-    }
-
-    crearTitulo() {
+        // Título
         const titulo = document.createElement('div');
         titulo.style.cssText = `
-            text-align: center;
-            color: #228B22;
-            font-weight: bold;
-            font-size: 16px; /* Aumentado */
-            margin-bottom: 20px; /* Aumentado */
+            color: #228B22; 
+            text-align: center; 
+            font-size: 15px; 
+            font-weight: bold; 
+            margin: 8px 0 12px 0;
         `;
         titulo.textContent = 'CREDENCIAL DE CLIENTE';
-        return titulo;
-    }
+        card.appendChild(titulo);
 
-    crearContenidoPrincipal(cliente, fechaNacimiento, edad) {
-        const contenido = document.createElement('div');
-        contenido.style.cssText = 'display: flex; gap: 20px; flex-grow: 1;'; /* Aumentado gap */
-        
-        // Foto y Firma
-        contenido.appendChild(this.crearSeccionFoto(cliente));
-        
-        // Datos (unificados para mejor distribución)
-        contenido.appendChild(this.crearSeccionDatos(cliente, fechaNacimiento, edad));
-        
-        return contenido;
-    }
-
-    crearSeccionFoto(cliente) {
-        const fotoDiv = document.createElement('div');
-        fotoDiv.style.cssText = `
-            width: 72px; 
-            height: 96px; 
-            border: 2px solid #228B22; 
-            border-radius: 8px;
-            overflow: hidden;
-            background: #f0f0f0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
+        // Layout principal
+        const layout = document.createElement('div');
+        layout.style.cssText = `
+            display: flex; 
+            flex-direction: row; 
+            padding: 0 20px;
+            gap: 18px;
         `;
 
+        // Columna izquierda: Foto y firma
+        const col1 = document.createElement('div');
+        col1.style.cssText = `
+            display: flex; 
+            flex-direction: column; 
+            align-items: center;
+            gap: 8px;
+        `;
+        
+        // Foto
+        const foto = document.createElement('div');
+        foto.style.cssText = `
+            width: 80px; 
+            height: 100px; 
+            border: 3px solid #228B22; 
+            background: #f0f0f0; 
+            border-radius: 4px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            overflow: hidden;
+        `;
         if (cliente.imagenUrl && cliente.imagenUrl.startsWith('data:image')) {
             const img = document.createElement('img');
             img.src = cliente.imagenUrl;
             img.style.cssText = 'width: 100%; height: 100%; object-fit: cover;';
-            img.alt = 'Foto del cliente';
-            fotoDiv.appendChild(img);
+            foto.appendChild(img);
         } else {
-            const placeholder = document.createElement('div');
-            placeholder.style.cssText = 'color: #888; font-size: 14px; text-align: center;';
-            placeholder.textContent = 'FOTO';
-            fotoDiv.appendChild(placeholder);
+            foto.textContent = 'FOTO';
+            foto.style.cssText += 'color: #888; font-size: 12px;';
         }
-
-        return fotoDiv;
-    }
-
-    crearDatosIzquierda(cliente, fechaNacimiento) {
-        const datosIzq = document.createElement('div');
-        datosIzq.style.cssText = 'flex: 1;';
+        col1.appendChild(foto);
         
-        // Nombre
-        datosIzq.appendChild(this.crearCampo('NOMBRE:', cliente.nombre.toUpperCase(), '11px', true));
-        
-        // Domicilio
-        const direccionCorta = cliente.direccion.length > 40 ? 
-            cliente.direccion.substring(0, 40) + '...' : 
-            cliente.direccion;
-        datosIzq.appendChild(this.crearCampo('DOMICILIO:', direccionCorta, '9px'));
-        
-        // RFC
-        datosIzq.appendChild(this.crearCampo('RFC:', cliente.rfc.toUpperCase(), '10px', true));
-        
-        // Fecha de nacimiento (si está disponible)
-        if (fechaNacimiento) {
-            datosIzq.appendChild(this.crearCampo('FECHA NACIMIENTO:', fechaNacimiento.toLocaleDateString('es-MX'), '9px'));
+        // Firma
+        const firma = document.createElement('div');
+        firma.style.cssText = `
+            width: 80px; 
+            height: 35px; 
+            border: 2px solid #228B22; 
+            background: #fff; 
+            border-radius: 3px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            overflow: hidden;
+        `;
+        if (cliente.firma && cliente.firma.startsWith('data:image')) {
+            const img = document.createElement('img');
+            img.src = cliente.firma;
+            img.style.cssText = 'width: 100%; height: 100%; object-fit: contain;';
+            firma.appendChild(img);
+        } else {
+            firma.textContent = 'FIRMA';
+            firma.style.cssText += 'color: #888; font-size: 10px;';
         }
+        col1.appendChild(firma);
 
-        return seccionDiv;
-    }
+        layout.appendChild(col1);
 
-    crearSeccionDatos(cliente, fechaNacimiento, edad) {
-        const datosDiv = document.createElement('div');
-        datosDiv.style.cssText = 'flex: 1; display: flex; flex-direction: column; justify-content: space-around;';
-        
-        // Nombre
-        datosDiv.appendChild(this.crearCampo('NOMBRE', cliente.nombre.toUpperCase(), '12px', true));
-        
-        // Domicilio
-        const direccionCorta = cliente.direccion.length > 45 ? 
-            cliente.direccion.substring(0, 45) + '...' : 
-            cliente.direccion;
-        datosDiv.appendChild(this.crearCampo('DOMICILIO', direccionCorta.toUpperCase(), '9px'));
-        
-        // RFC y Teléfono en una línea
-        const rfcTelDiv = document.createElement('div');
-        rfcTelDiv.style.cssText = 'display: flex; justify-content: space-between;';
-        rfcTelDiv.appendChild(this.crearCampo('RFC', cliente.rfc.toUpperCase(), '11px', true));
-        rfcTelDiv.appendChild(this.crearCampo('TELÉFONO', cliente.telefono, '10px'));
-        datosDiv.appendChild(rfcTelDiv);
-
-        // Folio (ID Cliente)
-        datosDiv.appendChild(this.crearCampo('FOLIO', cliente.id.toUpperCase(), '10px'));
-        
-        return datosDiv;
-    }
-
-    crearDatosIzquierda() { /* No usado, combinado en crearSeccionDatos */ }
-    crearDatosDerecha() { /* No usado, combinado en crearSeccionDatos */ }
-
-    crearCampo(etiqueta, valor, fontSize = '10px', negrita = false) {
-        const campo = document.createElement('div');
-        campo.style.cssText = 'margin-bottom: 12px;'; /* Aumentado */
-        
-        const labelDiv = document.createElement('div');
-        labelDiv.style.cssText = 'font-size: 9px; font-weight: bold; color: #333; margin-bottom: 3px;';
-        labelDiv.textContent = etiqueta;
-        
-        const valorDiv = document.createElement('div');
-        valorDiv.style.cssText = `font-size: ${fontSize}; color: #000; ${negrita ? 'font-weight: bold;' : ''}`;
-        valorDiv.textContent = valor;
-        
-        campo.appendChild(labelDiv);
-        campo.appendChild(valorDiv);
-        
-        return campo;
-    }
-
-    crearCodigoBarras() {
-        // No se usará en este diseño para dar más espacio a los datos
-        return document.createElement('div');
-    }
-
-    crearFooter(cliente) {
-        const footerContainer = document.createElement('div');
-        footerContainer.style.cssText = `
-            position: absolute; 
-            bottom: 8px; 
-            left: 15px; 
-            right: 15px;
+        // Columna derecha: Datos en dos columnas
+        const col2 = document.createElement('div');
+        col2.style.cssText = `
+            flex: 1; 
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
         `;
         
-        // Área de firma si existe
-        if (cliente.firma) {
-            const firmaArea = document.createElement('div');
-            firmaArea.style.cssText = `
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                margin-bottom: 10px;
+        // Helper para crear campos
+        const crearCampo = (label, value, bold = false) => {
+            const campo = document.createElement('div');
+            campo.innerHTML = `
+                <div style="font-weight: bold; color: #000; font-size: 9px; margin-bottom: 1px;">${label}:</div>
+                <div style="color: #000; font-size: 10px; line-height: 1.2; ${bold ? 'font-weight: bold;' : ''}; word-break: break-word;">${value}</div>
             `;
-            
-            const firmaLabel = document.createElement('div');
-            firmaLabel.style.cssText = 'font-size: 8px; color: #333; font-weight: bold;';
-            firmaLabel.textContent = 'FIRMA:';
-            
-            const firmaImg = document.createElement('img');
-            firmaImg.src = cliente.firma;
-            firmaImg.style.cssText = `
-                height: 25px;
-                max-width: 120px;
-                object-fit: contain;
-                border: 1px solid #ddd;
-                background: white;
-            `;
-            
-            firmaArea.appendChild(firmaLabel);
-            firmaArea.appendChild(firmaImg);
-            footerContainer.appendChild(firmaArea);
+            return campo;
+        };
+
+        // Helper para obtener fecha de registro formateada
+        const obtenerFechaRegistro = () => {
+            try {
+                if (!cliente.fechaRegistro) {
+                    return new Date().toLocaleDateString('es-MX');
+                }
+                
+                // Si es un Timestamp de Firestore
+                if (cliente.fechaRegistro.seconds) {
+                    return new Date(cliente.fechaRegistro.seconds * 1000).toLocaleDateString('es-MX');
+                }
+                
+                // Si es un objeto Date
+                if (cliente.fechaRegistro instanceof Date) {
+                    return cliente.fechaRegistro.toLocaleDateString('es-MX');
+                }
+                
+                // Si es una cadena de fecha
+                if (typeof cliente.fechaRegistro === 'string') {
+                    const date = new Date(cliente.fechaRegistro);
+                    return isNaN(date.getTime()) ? new Date().toLocaleDateString('es-MX') : date.toLocaleDateString('es-MX');
+                }
+                
+                // Si es un número (timestamp en milisegundos)
+                if (typeof cliente.fechaRegistro === 'number') {
+                    return new Date(cliente.fechaRegistro).toLocaleDateString('es-MX');
+                }
+                
+                return new Date().toLocaleDateString('es-MX');
+            } catch (error) {
+                console.error('Error al obtener fecha de registro:', error);
+                return new Date().toLocaleDateString('es-MX');
+            }
+        };
+
+        // Primera fila: NOMBRE y TELÉFONO
+        const fila1 = document.createElement('div');
+    fila1.style.cssText = 'display: flex; gap: 24px;';
+        const nombreDiv = document.createElement('div');
+        nombreDiv.style.flex = '2';
+        nombreDiv.appendChild(crearCampo('NOMBRE', cliente.nombre.toUpperCase(), true));
+        const telefonoDiv = document.createElement('div');
+        telefonoDiv.style.flex = '1';
+        telefonoDiv.appendChild(crearCampo('TELÉFONO', cliente.telefono || ''));
+        fila1.appendChild(nombreDiv);
+        fila1.appendChild(telefonoDiv);
+        col2.appendChild(fila1);
+
+        // Segunda fila: DOMICILIO y GÉNERO
+        const fila2 = document.createElement('div');
+    fila2.style.cssText = 'display: flex; gap: 24px;';
+        const domicilioDiv = document.createElement('div');
+        domicilioDiv.style.flex = '2';
+        domicilioDiv.appendChild(crearCampo('DOMICILIO', cliente.direccion.toUpperCase()));
+        const generoDiv = document.createElement('div');
+        generoDiv.style.flex = '1';
+        generoDiv.appendChild(crearCampo('GÉNERO', cliente.genero || 'Femenino'));
+        fila2.appendChild(domicilioDiv);
+        fila2.appendChild(generoDiv);
+        col2.appendChild(fila2);
+
+        // Tercera fila: RFC y REGISTRO
+        const fila3 = document.createElement('div');
+    fila3.style.cssText = 'display: flex; gap: 24px;';
+        const rfcDiv = document.createElement('div');
+        rfcDiv.style.flex = '2';
+        rfcDiv.appendChild(crearCampo('RFC', cliente.rfc.toUpperCase(), true));
+        const registroDiv = document.createElement('div');
+        registroDiv.style.flex = '1';
+        registroDiv.appendChild(crearCampo('REGISTRO', obtenerFechaRegistro()));
+        fila3.appendChild(rfcDiv);
+        fila3.appendChild(registroDiv);
+        col2.appendChild(fila3);
+
+        // Cuarta fila: FOLIO (ancho completo)
+        const fila4 = document.createElement('div');
+        fila4.appendChild(crearCampo('FOLIO', cliente.id.toUpperCase()));
+        col2.appendChild(fila4);
+
+        layout.appendChild(col2);
+        card.appendChild(layout);
+
+        // Código de barras
+        const barrasContainer = document.createElement('div');
+        barrasContainer.style.cssText = `
+            text-align: center;
+            margin-top: 10px;
+        `;
+        const barras = document.createElement('div');
+        barras.style.cssText = `
+            display: inline-block;
+            height: 16px;
+        `;
+        let barrasHtml = '';
+        for (let i = 0; i < 30; i++) {
+            const h = Math.random() > 0.5 ? 16 : 10;
+            barrasHtml += `<span style="display:inline-block;width:1.5px;height:${h}px;background:#000;margin-right:1.5px;vertical-align:bottom;"></span>`;
         }
-        
-        // Footer con información
+        barras.innerHTML = barrasHtml;
+        barrasContainer.appendChild(barras);
+        card.appendChild(barrasContainer);
+
+        // Footer
         const footer = document.createElement('div');
         footer.style.cssText = `
             display: flex; 
-            justify-content: space-between;
-            font-size: 9px; /* Aumentado */
-            color: #555;
+            justify-content: space-between; 
+            font-size: 8.5px; 
+            color: #666; 
+            padding: 8px 20px 0 20px;
         `;
-        
-        const validez = document.createElement('span');
-        validez.textContent = 'VÁLIDA HASTA: 2030';
-        
-        const empresa = document.createElement('span');
-        empresa.textContent = 'CRÉDITO FÁCIL 2025';
-        
-        footer.appendChild(validez);
-        footer.appendChild(empresa);
-        footerContainer.appendChild(footer);
-        
-        return footerContainer;
+        footer.innerHTML = `<span>VÁLIDA HASTA: 2030</span><span>CRÉDITO FÁCIL 2025</span>`;
+        card.appendChild(footer);
+
+        return card;
     }
 
     // === MÉTODOS SIMPLIFICADOS PARA FOTO Y FIRMA ===
@@ -2072,8 +2065,8 @@ class FormCliente {
             // Cerrar modal
             document.getElementById('modalCapturarFoto').style.display = 'none';
             
-            // Mostrar credencial inmediatamente
-            this.mostrarCredencialHTML(cliente);
+            // Abrir la credencial directamente en PDF (sin modal HTML)
+            await this.generarCredencialEstiloINE(cliente.id);
             
             this.showLoading(false);
             this.toast.success('Cliente registrado exitosamente');

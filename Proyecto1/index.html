@@ -433,13 +433,19 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="editarImagenCliente">Actualizar Foto:</label>
-                        <input type="file" id="editarImagenCliente" accept="image/*"/>
-                        <small class="form-text">Opcional. Formatos: JPG, PNG, GIF. Máximo 2MB.</small>
+                        <label>Imagen actual:</label>
                         <div id="imagenActualPreview" style="margin-top: 10px; display: none;">
                             <img id="imagenActualImg" src="" alt="Imagen actual" style="max-width: 100px; max-height: 100px; border-radius: 5px;">
                             <p><small>Imagen actual del cliente</small></p>
                         </div>
+                    </div>
+                    <div class="form-group" style="display:flex; gap:10px; flex-wrap: wrap;">
+                        <button type="button" id="editarCambiarFoto" class="btn btn-secondary">
+                            <i class="fas fa-camera"></i> Cambiar Foto (cámara)
+                        </button>
+                        <button type="button" id="editarCambiarFirma" class="btn btn-info">
+                            <i class="fas fa-signature"></i> Cambiar Firma
+                        </button>
                     </div>
                     <button type="submit" class="btn btn-info">Guardar Cambios</button>
                 </form>
@@ -497,48 +503,7 @@
             </div>
         </div>
 
-        <!-- Modal de Opciones de Credencial -->
-        <div id="modalOpcionesCredencial" class="modal">
-            <div class="modal-content" style="max-width: 400px;">
-                <div class="modal-header">
-                    <h3>Credencial de Cliente</h3>
-                    <span class="close" onclick="cerrarModalOpciones()">&times;</span>
-                </div>
-                <div class="modal-body">
-                    <p style="margin-bottom: 20px; text-align: center;">¿Qué desea hacer?</p>
-                    <div style="display: flex; flex-direction: column; gap: 15px;">
-                        <button id="btnVerCredencial" class="btn btn-primary" style="width: 100%;">
-                            <i class="fas fa-id-card"></i> Ver Credencial
-                        </button>
-                        <button id="btnCambiarFoto" class="btn btn-secondary" style="width: 100%;">
-                            <i class="fas fa-camera"></i> Cambiar Foto
-                        </button>
-                        <button id="btnCambiarFirma" class="btn btn-info" style="width: 100%;">
-                            <i class="fas fa-signature"></i> Cambiar Firma
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
 
-        <!-- Modal para Mostrar Credencial -->
-        <div id="modalCredencial" class="modal">
-            <div class="modal-content" style="max-width: 800px;">
-                <div class="modal-header">
-                    <h3>🪪 Credencial del Cliente</h3>
-                    <span class="close" onclick="cerrarModalCredencial()">&times;</span>
-                </div>
-                <div class="modal-body">
-                    <div id="credencialContent"></div>
-                    <div style="text-align: center; margin-top: 20px;">
-                        <button id="btnExportarPDF" class="btn btn-success">
-                            <i class="fas fa-file-pdf"></i> Exportar a PDF
-                        </button>
-                        <button class="btn btn-secondary" onclick="cerrarModalCredencial()">Cerrar</button>
-                    </div>
-                </div>
-            </div>
-        </div>
 
         <!-- Modal para Capturar/Subir Foto durante Registro -->
         <div id="modalCapturarFoto" class="modal">
@@ -585,14 +550,6 @@
                         </div>
                     </div>
 
-                    <!-- Área de subir archivo -->
-                    <div id="areaArchivo" style="display: none;">
-                        <div class="form-group">
-                            <label for="archivoFoto">Seleccionar archivo:</label>
-                            <input type="file" id="archivoFoto" accept="image/*"/>
-                            <small class="form-text">Formatos: JPG, PNG, GIF. Máximo 2MB.</small>
-                        </div>
-                    </div>
 
                     <!-- Preview de la foto -->
                     <div id="previewFoto" style="display: none; text-align: center; margin: 20px 0;">
@@ -661,9 +618,6 @@
                             <button type="button" id="btnTomarNuevaFoto" class="btn btn-primary">
                                 <i class="fas fa-camera"></i> Tomar Nueva Foto
                             </button>
-                            <button type="button" id="btnSubirNuevaFoto" class="btn btn-secondary">
-                                <i class="fas fa-upload"></i> Subir Archivo
-                            </button>
                         </div>
                     </div>
 
@@ -678,15 +632,6 @@
                             <button type="button" id="btnCancelarCameraNueva" class="btn btn-secondary">
                                 Cancelar
                             </button>
-                        </div>
-                    </div>
-
-                    <!-- Área de subir archivo -->
-                    <div id="areaArchivoNueva" style="display: none;">
-                        <div class="form-group">
-                            <label for="nuevaFotoCliente">Seleccionar nueva foto:</label>
-                            <input type="file" id="nuevaFotoCliente" accept="image/*"/>
-                            <small class="form-text">Formatos: JPG, PNG, GIF. Máximo 2MB.</small>
                         </div>
                     </div>
 
@@ -782,15 +727,7 @@
                 }
             }
 
-            function cerrarModalCredencial() {
-                document.getElementById('modalCredencial').style.display = 'none';
-            }
-
-            window.cerrarModalCredencial = cerrarModalCredencial;
-
-            function cerrarModalOpciones() {
-                document.getElementById('modalOpcionesCredencial').style.display = 'none';
-            }
+            // Eliminadas funciones para modales de credencial/opciones (ya no existen)
 
             // Funciones para la cámara
             window.abrirCamara = async function() {
@@ -941,47 +878,7 @@
                 return null;
             };
 
-            // Función para exportar credencial a PDF
-            window.exportarCredencialPDF = async function(clienteId) {
-                try {
-                    const credencialElement = document.getElementById('credencialContent');
-                    const { jsPDF } = window.jspdf;
-                    
-                    // Usar html2canvas para capturar la credencial
-                    const canvas = await html2canvas(credencialElement, {
-                        scale: 2,
-                        useCORS: true,
-                        allowTaint: true
-                    });
-                    
-                    const imgData = canvas.toDataURL('image/png');
-                    const pdf = new jsPDF('landscape', 'mm', 'a4');
-                    
-                    const imgWidth = 210;
-                    const pageHeight = 295;
-                    const imgHeight = (canvas.height * imgWidth) / canvas.width;
-                    let heightLeft = imgHeight;
-                    
-                    let position = 0;
-                    
-                    pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-                    heightLeft -= pageHeight;
-                    
-                    while (heightLeft >= 0) {
-                        position = heightLeft - imgHeight;
-                        pdf.addPage();
-                        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-                        heightLeft -= pageHeight;
-                    }
-                    
-                    pdf.save(`Credencial_Cliente_${Date.now()}.pdf`);
-                    alert("✅ Credencial exportada a PDF exitosamente");
-                    
-                } catch (error) {
-                    console.error('Error al exportar PDF:', error);
-                    alert("❌ Error al exportar PDF: " + error.message);
-                }
-            };
+            // Eliminado: exportarCredencialPDF (se muestra directo el iframe desde FormCliente.js)
         </script>
 
         <!-- Firebase SDK -->
@@ -992,6 +889,16 @@
         
         <!-- jsPDF -->
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+        <!-- QRious for QR generation (no SRI to avoid integrity mismatch); include fallback -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+        <script>
+            // Fallback to jsDelivr if QRious failed to load
+            if (!window.QRious) {
+                var s = document.createElement('script');
+                s.src = 'https://cdn.jsdelivr.net/npm/qrious@4.0.2/dist/qrious.min.js';
+                document.head.appendChild(s);
+            }
+        </script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
 
 
