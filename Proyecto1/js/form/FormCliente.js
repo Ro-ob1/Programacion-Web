@@ -18,6 +18,10 @@ class FormCliente {
         this.videoStream = null; // Para manejar el stream de la cámara
 
         this.initEventListeners();
+
+        // Expose close handlers for modals used via inline onclick in HTML
+        window.cerrarModalCambiarFoto = () => this.cerrarModalCambiarFoto();
+        window.cerrarModalCambiarFirma = () => this.cerrarModalCambiarFirma();
     }
 
     initEventListeners() {
@@ -509,27 +513,30 @@ class FormCliente {
         try {
             const cliente = await this.clienteService.getClienteById(clienteId);
             document.getElementById('clienteIdFoto').value = clienteId;
-            
+
             // Mostrar foto actual
             const fotoImg = document.getElementById('fotoActualImg');
             const fotoTexto = document.getElementById('fotoActualTexto');
-            
+
             if (cliente.imagenUrl) {
+                // Mostrar imagen existente
                 fotoImg.src = cliente.imagenUrl;
                 fotoImg.style.display = 'block';
                 fotoTexto.style.display = 'none';
             } else {
+                // Sin imagen
                 fotoImg.style.display = 'none';
                 fotoTexto.style.display = 'flex';
                 fotoTexto.textContent = 'Sin foto';
             }
-            
-            // Reset áreas
+
+            // Reset áreas interactivas (cámara/preview)
             this.resetearModalCambiarFoto();
-            
+
             // Configurar event listeners para cambiar foto
             this.configurarEventosCambiarFoto();
-            
+
+            // Abrir modal
             document.getElementById('modalCambiarFoto').style.display = 'block';
         } catch (error) {
             this.toast.error('Error al cargar datos del cliente');
